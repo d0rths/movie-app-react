@@ -7,6 +7,8 @@ import { getTrendingMovies, updateSearchCount } from "@/database.js";
 import { useEffect, useState } from "react";
 import { useDebounce } from "react-use";
 
+import Hero from "@/assets/images/hero.png"
+
 const API_BASE_URL = "https://api.themoviedb.org/3";
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
@@ -97,7 +99,7 @@ function App() {
 
       <div className="wrapper">
         <header>
-          <img src="../public/hero.png" alt="Hero Banner" />
+          <img src={Hero} alt="Hero Banner" />
           <h1>Find <span className="text-gradient">Movies</span> You'll Enjoy without the Hassle</h1>
 
           <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
