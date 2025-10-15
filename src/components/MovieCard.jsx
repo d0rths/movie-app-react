@@ -1,12 +1,13 @@
 import Star from "@/assets/images/star.svg"
 import NoMovie from "@/assets/images/no-movie.png"
+import { Link } from "react-router-dom";
 
 const MovieCard = ({
   movie:
-    { title, vote_average, poster_path, release_date, original_language }
+    { id, title, vote_average, poster_path, release_date, original_language }
 }) => {
   return (
-    <div className="movie-card">
+    <Link to={`/movie/${id}`} className="movie-card">
       <img
         src={poster_path ?
           `https://image.tmdb.org/t/p/w500/${poster_path}` : {NoMovie}}
@@ -31,7 +32,7 @@ const MovieCard = ({
           </p>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

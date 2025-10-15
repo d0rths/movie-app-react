@@ -57,6 +57,10 @@
     @apply px-5 py-12 xs:p-10 max-w-7xl mx-auto flex flex-col relative z-10;
   }
 
+  .back-button {
+    @apply text-white text-xl flex flex-row py-2 pl-1 pr-2 border-[1px] border-white w-fit rounded-md hover:bg-white/10 transition-all duration-100;
+  }
+
   .trending {
     @apply mt-20;
 
