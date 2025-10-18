@@ -1,5 +1,6 @@
 import NoMovie from "@/assets/images/no-movie.png";
 import BackButton from "@/components/BackButton.jsx";
+import MovieRatings from "@/components/MovieRatings.jsx";
 import Spinner from "@/components/Spinner.jsx";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -20,6 +21,9 @@ const MoviePage = () => {
   const {id} = useParams();
   const [movie, setMovie] = useState(null);
   const [trailer, setTrailer] = useState(null);
+  const [certification, setCertification] = useState(null);
+  const [releaseDate, setReleaseDate] = useState("");
+  const [runtime, setRuntime] = useState("");
 
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -30,20 +34,35 @@ const MoviePage = () => {
 
     try {
       // Fetch movie details
-      fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}&language=en-US`, API_OPTIONS)
-        .then(res => res.json())
-        .then(data => setMovie(data));
+      const movieRes = await fetch(
+        `${API_BASE_URL}/movie/${id}?api_key=${API_KEY}&language=en-US`,
+        API_OPTIONS
+      );
+      const movieData = await movieRes.json();
+      setMovie(movieData);
 
       // Fetch movie videos (trailers)
-      fetch(`https://api.themoviedb.org/3/movie/${id}/videos?api_key=${API_KEY}&language=en-US`, API_OPTIONS)
-        .then(res => res.json())
-        .then(data => {
-          // Знаходимо офіційний трейлер на YouTube
-          const youtubeTrailer = data.results.find(
-            video => video.type === 'Trailer' && video.site === 'YouTube'
-          );
-          setTrailer(youtubeTrailer);
-        });
+      const videosRes = await fetch(
+        `${API_BASE_URL}/movie/${id}/videos?api_key=${API_KEY}&language=en-US`,
+        API_OPTIONS
+      );
+      const videosData = await videosRes.json();
+      const youtubeTrailer = videosData.results.find(
+        video => video.type === 'Trailer' && video.site === 'YouTube'
+      );
+      setTrailer(youtubeTrailer);
+
+      // Fetch certifications
+      const certRes = await fetch(
+        `${API_BASE_URL}/movie/${id}/release_dates?api_key=${API_KEY}`,
+        API_OPTIONS
+      );
+      const certData = await certRes.json();
+
+      const usRelease = certData.results.find(r => r.iso_3166_1 === 'US');
+      if (usRelease && usRelease.release_dates[0]) {
+        setCertification(usRelease.release_dates[0].certification);
+      }
 
     } catch (error) {
       console.error(`Error fetching movie info: ${error}`);
@@ -55,7 +74,17 @@ const MoviePage = () => {
 
   useEffect(() => {
     fetchMovieInfo();
-  }, [])
+  }, [id])
+
+  useEffect(() => {
+    if(movie) {
+      setReleaseDate(`${movie.release_date?.split("-")[1]}/${movie.release_date?.split('-')[2]}/${movie.release_date?.split("-")[0]}`);
+
+      let hours = Math.floor(movie.runtime / 60);
+      let minutes = movie.runtime % 60;
+      setRuntime(`${hours}h ${minutes}m`);
+    }
+  }, [movie])
 
   return (
     <div>
@@ -72,7 +101,7 @@ const MoviePage = () => {
           <div>
             {movie && (
               <div className="flex flex-row gap-2 mt-5">
-                <div className="max-w-[300px] w-full">
+                <div className="min-w-[300px]">
                   <img
                     src={movie.poster_path ?
                       `https://image.tmdb.org/t/p/w500/${movie.poster_path}` : {NoMovie}}
@@ -81,10 +110,29 @@ const MoviePage = () => {
                   />
                 </div>
                 <div className="px-10">
-                  <h1 className="text-left text-4xl">{movie.title}
+                  <h1 className="text-left text-4xl leading-tight">{movie.title}
                     <span className="text-gray-100 font-normal"> ({movie.release_date?.split('-')[0]})</span>
                   </h1>
-                  <p className="text-white text-xl">{movie.overview}</p>
+
+                  <div className="flex flex-row items-center gap-2 text-white font-light">
+                    {certification && (
+                      <div className="certification">{certification}</div>
+                    )}
+                    <p>
+                      {releaseDate} • {movie.genres.map(genre => genre.name).join(', ')} • {runtime}
+                    </p>
+                  </div>
+
+                  {/* Rating */}
+                  <MovieRatings />
+                  <hr className="text-gray-100/20 mt-3 mb-2"/>
+
+                  <div>
+                    <p className="text-gray-100 text-base italic">{movie.tagline}</p>
+
+                    <h3 className="text-white text-xl py-2">Overview</h3>
+                    <p className="text-white text-base">{movie.overview}</p>
+                  </div>
                 </div>
               </div>
             )}

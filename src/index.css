@@ -61,6 +61,14 @@
     @apply text-white text-xl flex flex-row py-2 pl-1 pr-2 border-[1px] border-white w-fit rounded-md hover:bg-white/10 transition-all duration-100;
   }
 
+  .certification {
+    @apply text-lg text-gray-100 font-light px-1 border-[1px] border-white/60 rounded-sm w-fit;
+  }
+
+  .movie-rating {
+    @apply flex flex-row gap-1 items-center;
+  }
+
   .trending {
     @apply mt-20;
 
