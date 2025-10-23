@@ -1,22 +1,13 @@
-import NoMovie from "@/assets/images/no-movie.png";
 import BackButton from "@/components/BackButton.jsx";
 import MovieRatings from "@/components/MovieRatings.jsx";
+import SimilarCarousel from "@/components/SimilarCarousel.jsx";
 import Spinner from "@/components/Spinner.jsx";
 import WatchProviders from "@/components/WatchProviders.jsx";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { API_BASE_URL, API_KEY, API_OPTIONS } from "@/conf/index.js";
 
-const API_BASE_URL = "https://api.themoviedb.org/3";
-
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
-
-const API_OPTIONS = {
-  method: "GET",
-  headers: {
-    accept: "application/json",
-    Authorization: `Bearer ${API_KEY}`
-  }
-};
+import NoMovie from "@/assets/images/no-movie.png";
 
 const MoviePage = () => {
   const { id } = useParams();
@@ -25,6 +16,7 @@ const MoviePage = () => {
   const [certification, setCertification] = useState(null);
   const [releaseDate, setReleaseDate] = useState("");
   const [runtime, setRuntime] = useState("");
+
   const [showTrailer, setShowTrailer] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -65,7 +57,6 @@ const MoviePage = () => {
       if (usRelease && usRelease.release_dates[0]) {
         setCertification(usRelease.release_dates[0].certification);
       }
-
     } catch (error) {
       console.error(`Error fetching movie info: ${error}`);
       setErrorMessage("Error fetching movie info. Please try again later.");
@@ -110,12 +101,12 @@ const MoviePage = () => {
                   >
                     <img
                       src={movie.poster_path ?
-                        `https://image.tmdb.org/t/p/w500/${movie.poster_path}` : { NoMovie }}
+                        `https://image.tmdb.org/t/p/w500/${movie.poster_path}` : NoMovie }
                       alt={movie.title}
                       className="w-full rounded-xl"
                     />
                     {trailer && (
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+                      <div className="trailer-hover">
                         <svg className="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M8 5v14l11-7z" />
                         </svg>
@@ -149,8 +140,11 @@ const MoviePage = () => {
                     <p className="text-white text-base">{movie.overview}</p>
                   </div>
                 </div>
+
               </div>
             )}
+
+            <SimilarCarousel id={id} />
 
             {showTrailer && trailer && (
               <div
