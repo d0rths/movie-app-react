@@ -1,4 +1,5 @@
 import BackButton from "@/components/BackButton.jsx";
+import Credits from "@/components/Credits.jsx";
 import MovieRatings from "@/components/MovieRatings.jsx";
 import SimilarCarousel from "@/components/SimilarCarousel.jsx";
 import Spinner from "@/components/Spinner.jsx";
@@ -139,6 +140,8 @@ const MoviePage = () => {
                     <h3 className="text-white text-xl py-2">Overview</h3>
                     <p className="text-white text-base">{movie.overview}</p>
                   </div>
+
+                  <Credits id={id} />
                 </div>
 
               </div>
