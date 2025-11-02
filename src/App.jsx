@@ -1,3 +1,4 @@
+import FavoriteMovies from "@/pages/FavoriteMovies.jsx";
 import Home from "@/pages/Home.jsx";
 import MoviePage from "@/pages/MoviePage.jsx";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -10,6 +11,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/movie/:id" element={<MoviePage />} />
+        <Route path="/favorite-movies" element={<FavoriteMovies />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,29 +1,15 @@
+import { tmdbApi } from "@/services/tmdbApi.js";
 import { useEffect, useState } from "react";
 
 import RightArrow from "@/assets/images/right-arrow.svg"
-
-const API_BASE_URL = "https://api.themoviedb.org/3";
-
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
-
-const API_OPTIONS = {
-  method: "GET",
-  headers: {
-    accept: "application/json",
-    Authorization: `Bearer ${API_KEY}`
-  }
-};
 
 const WatchProviders = ({ movieId }) => {
   const [providers, setProviders] = useState(null);
   const fetchProviders = async () => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/movie/${movieId}/watch/providers`,
-        API_OPTIONS
-      );
-      const data = await response.json();
-      setProviders(data.results.US);
+      const providersData = await tmdbApi.getMovieProviders(movieId);
+
+      setProviders(providersData.results.US);
     } catch (error) {
       console.error(error);
     }

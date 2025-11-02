@@ -5,9 +5,9 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
+import { tmdbApi } from "@/services/tmdbApi.js";
 
 import { useEffect, useState } from "react";
-import { API_BASE_URL, API_OPTIONS } from "@/conf/index.js";
 
 import NoMovie from "@/assets/images/no-movie.png";
 import Star from "@/assets/images/star.svg";
@@ -18,12 +18,8 @@ const SimilarCarousel = ({ id }) => {
 
   const fetchSimilarMovies = async () => {
     try {
-      // Fetch similar movies
-      const similarRes = await fetch(
-        `${API_BASE_URL}/movie/${id}/similar?language=en-US`,
-        API_OPTIONS
-      );
-      const similarData = await similarRes.json();
+      const similarData = await tmdbApi.getSimilarMovies(id);
+
       setSimilar(similarData.results);
     } catch (error) {
       console.error(`Error fetching similar movie info: ${error}`);

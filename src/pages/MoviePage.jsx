@@ -1,12 +1,14 @@
 import BackButton from "@/components/BackButton.jsx";
 import Credits from "@/components/Credits.jsx";
+import FavoriteButton from "@/components/FavoriteButton.jsx";
 import MovieRatings from "@/components/MovieRatings.jsx";
 import SimilarCarousel from "@/components/SimilarCarousel.jsx";
 import Spinner from "@/components/Spinner.jsx";
 import WatchProviders from "@/components/WatchProviders.jsx";
+import { tmdbApi } from "@/services/tmdbApi.js";
+import { findUSCertifications, findYoutubeTrailer, formatReleaseDate, formatRuntime } from "@/utils/movieUtils.js";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { API_BASE_URL, API_KEY, API_OPTIONS } from "@/conf/index.js";
 
 import NoMovie from "@/assets/images/no-movie.png";
 
@@ -15,49 +17,25 @@ const MoviePage = () => {
   const [movie, setMovie] = useState(null);
   const [trailer, setTrailer] = useState(null);
   const [certification, setCertification] = useState(null);
-  const [releaseDate, setReleaseDate] = useState("");
-  const [runtime, setRuntime] = useState("");
 
   const [showTrailer, setShowTrailer] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
+  const releaseDate = formatReleaseDate(movie?.releaseDate);
+  const runtime = formatRuntime(movie?.runtime);
+
   const fetchMovieInfo = async () => {
     setIsLoading(true);
     setErrorMessage("");
 
     try {
-      // Fetch movie details
-      const movieRes = await fetch(
-        `${API_BASE_URL}/movie/${id}?api_key=${API_KEY}&language=en-US`,
-        API_OPTIONS
-      );
-      const movieData = await movieRes.json();
+      const {movieData, videosData, certData} = await tmdbApi.getMovieInfo(id);
+
       setMovie(movieData);
-
-      // Fetch movie videos (trailers)
-      const videosRes = await fetch(
-        `${API_BASE_URL}/movie/${id}/videos?api_key=${API_KEY}&language=en-US`,
-        API_OPTIONS
-      );
-      const videosData = await videosRes.json();
-      const youtubeTrailer = videosData.results.find(
-        video => video.type === "Trailer" && video.site === "YouTube"
-      );
-      setTrailer(youtubeTrailer);
-
-      // Fetch certifications
-      const certRes = await fetch(
-        `${API_BASE_URL}/movie/${id}/release_dates?api_key=${API_KEY}`,
-        API_OPTIONS
-      );
-      const certData = await certRes.json();
-
-      const usRelease = certData.results.find(r => r.iso_3166_1 === "US");
-      if (usRelease && usRelease.release_dates[0]) {
-        setCertification(usRelease.release_dates[0].certification);
-      }
+      setTrailer(findYoutubeTrailer(videosData));
+      setCertification(findUSCertifications(certData));
     } catch (error) {
       console.error(`Error fetching movie info: ${error}`);
       setErrorMessage("Error fetching movie info. Please try again later.");
@@ -69,16 +47,6 @@ const MoviePage = () => {
   useEffect(() => {
     fetchMovieInfo();
   }, [id]);
-
-  useEffect(() => {
-    if (movie) {
-      setReleaseDate(`${movie.release_date?.split("-")[1]}/${movie.release_date?.split("-")[2]}/${movie.release_date?.split("-")[0]}`);
-
-      let hours = Math.floor(movie.runtime / 60);
-      let minutes = movie.runtime % 60;
-      setRuntime(`${hours}h ${minutes}m`);
-    }
-  }, [movie]);
 
   return (
     <div>
@@ -115,6 +83,7 @@ const MoviePage = () => {
                     )}
                   </div>
                   <WatchProviders movieId={id} movie={movie} />
+                  <FavoriteButton movie={movie} />
                 </div>
                 <div className="px-10">
                   <h1 className="text-left text-4xl leading-tight">{movie.title}

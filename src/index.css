@@ -73,6 +73,10 @@
     @apply absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl;
   }
 
+  .favorite-button {
+    @apply cursor-pointer text-xl text-white border-[1px] border-[#012648] py-3 px-10 w-full rounded-full hover:bg-[#012648]/40;
+  }
+
   .trending {
     @apply mt-20;
 

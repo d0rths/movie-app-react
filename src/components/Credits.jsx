@@ -1,4 +1,4 @@
-import { API_BASE_URL, API_OPTIONS } from "@/conf/index.js";
+import { tmdbApi } from "@/services/tmdbApi.js";
 import { getCrewMembers } from "@/utils/credits.js";
 import { useEffect, useState } from "react";
 
@@ -8,20 +8,11 @@ const Credits = ({ id }) => {
 
   const fetchCredits = async () => {
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/movie/${id}/credits?language=en-US`,
-        API_OPTIONS
-      );
-      const data = await res.json();
-      setCredits(data);
+      const creditsData = await tmdbApi.getCredits(id);
+      setCredits(creditsData);
 
-      console.log("credits", data);
-
-      const filteredCrew = getCrewMembers(data);
+      const filteredCrew = getCrewMembers(creditsData);
       setCrew(filteredCrew);
-
-      console.log("crew", crew);
-
     } catch (error) {
       console.error("Error fetching credits ", error);
     }
